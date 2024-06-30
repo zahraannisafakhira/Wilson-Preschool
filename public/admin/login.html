@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wilson Preschool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&family=Roboto:ital,wght@0,400;1,300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+
+<body>
+    <section class="sub-header-admin">
+        <nav>
+            <a></a>
+            <div class="nav-links" id="navLinks">
+                <i class="fa fa-times" onclick="hideMenu()"></i>
+                <ul>
+                    <!-- <li><a href="/">Home</a></li> -->
+                </ul>
+            </div>
+            <i class="fa fa-bars" onclick="showMenu()"></i>
+        </nav>
+        <h1>Selamat Datang di Panel Admin!</h1>
+    </section>
+
+    <!--JavaScript for Toggle Menu-->
+    <script>
+        var navLinks = document.getElementById("navLinks");
+        function showMenu() {
+            navLinks.style.right = "0";
+        }
+        function hideMenu() {
+            navLinks.style.right = "-200px";
+        }
+    </script>
+
+    <!--Facilities-->
+    <section class="Facilities">
+        <h1>Login</h1>
+        <div style="background: white" class="Comment-box">
+            <h1>Login as an admin</h1>
+            <form id="login-form" class="Comment-form">
+                <p>Username: <input id="email" type="text" name="email" required></p>
+                <p>Password: <input id="password" type="password" name="password" required></p>
+                <div class="g-recaptcha" data-sitekey="6LfgLAAqAAAAAKOQ72saaq8lmFPNmtNry122XnWn"></div>
+                <p><input id="login" style="cursor: pointer" type="submit" value="Login"></p>
+                <p id="error-message" style="color: red"></p>
+            </form>
+        </div>
+    </section>
+
+    <!--Footer-->
+    <section class="Footer">
+        <h4>About Us</h4>
+        <p>At Wilson Preschool, we believe in the power of early education to shape young minds and inspire a lifelong
+            love for learning.
+            <br>For any inquiries or to schedule a visit, please don't hesitate to reach out to us.
+        </p>
+        <div class="icons">
+            <a href="https://www.facebook.com/SekolahCikal/?locale=id_ID" class="fa fa-facebook"></a>
+            <a href="https://instagram.com/sekolahcikal?igshid=MzRlODBiNWFlZA==" class="fa fa-instagram"></a>
+            <a href="https://twitter.com/sekolahcikal?lang=en" class="fa fa-twitter"></a>
+        </div>
+        <p>Made by Ilham and Zahra</p>
+    </section>
+
+    <!-- Firebase and login handling -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-GCRTkz5_f-Z3JwUUYXPmKBjeiHcvfCc",
+            authDomain: "preadmin2.firebaseapp.com",
+            databaseURL: "https://preadmin2-default-rtdb.firebaseio.com",
+            projectId: "preadmin2",
+            storageBucket: "preadmin2.appspot.com",
+            messagingSenderId: "931524081528",
+            appId: "1:931524081528:web:19194a96a914d115123a8d",
+            measurementId: "G-FG4MC4K2GX"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Email validation regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // Handle login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMessageDiv = document.getElementById('error-message');
+
+            // Clear previous error messages
+            errorMessageDiv.textContent = '';
+
+            // Validate email and password
+            if (!email || !password) {
+                errorMessageDiv.textContent = 'Please fill out all fields.';
+                return;
+            }
+
+            if (!emailRegex.test(email)) {
+                errorMessageDiv.textContent = 'Please enter a valid email address.';
+                return;
+            }
+
+            try {
+                console.log("Attempting to sign in with email:", email);
+                // Authenticate with Firebase
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                alert('Login successful!');
+
+                window.location.href = 'home.html';  // Redirect to home.html
+            } catch (error) {
+                console.error("Login error:", error);
+                let errorMessage = 'An error occurred during login.';
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No user found with this email.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address.';
+                }
+                errorMessageDiv.textContent = errorMessage;
+            }
+        });
+    </script>
+</body>
+
+</html>

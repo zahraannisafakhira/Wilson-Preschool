@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wilson Preschool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&family=Roboto:ital,wght@0,400;1,300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <section class="sub-header-admin">
+        <nav>
+            <a></a>
+            <div class="nav-links" id="navLinks">
+                <i class="fa fa-times" onclick="hideMenu()"></i>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="comments.html">Comments</a></li>
+                    <li><a href="messages.html">Messages</a></li>
+                    <li><a href="applicants.html">Applicants</a></li>
+                    <li><a href="registration.html">Register</a></li>
+                    <li><a href="#"> </a></li>
+                    <!-- <li><a href="#">Selamat datang! Placeholder</a></li> -->
+                    <li><a href="login.html">Sign Out</a></li>
+                </ul>
+            </div>
+            <i class="fa fa-bars" onclick="showMenu()"></i>
+        </nav>
+        <h1>Applicants</h1>
+    </section>
+
+    <!--JavaScript for Toggle Menu-->
+    <script>
+        var navLinks = document.getElementById("navLinks");
+
+        function showMenu() {
+            navLinks.style.right = "0";
+        }
+        function hideMenu() {
+            navLinks.style.right = "-200px";
+        }
+    </script>
+
+    <!--Applicants-->
+    <section class="Facilities">
+        <h1>Applicants List</h1>
+        <p>Lists of the applicants.</p>
+
+        <div class="table-wrapper">
+            <table class="fl-table">
+                <thead>
+                    <tr>
+                        <!-- <th>ID</th> -->
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Birthdate</th>
+                        <th>Address</th>
+                        <th>Home Phone Number</th>
+                        <th>Parent Name</th>
+                        <th>Parent Phone Number</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!--Footer-->
+    <section class="Footer">
+        <h4>About Us</h4>
+        <p>At Wilson Preschool, we believe in the power of early education to shape young minds and inspire a lifelong
+            love for learning.
+            <br>For any inquiries or to schedule a visit, please don't hesitate to reach out to us.
+        </p>
+        <div class="icons">
+            <a href="https://www.facebook.com/SekolahCikal/?locale=id_ID" class="fa fa-facebook"></a>
+            <a href="https://instagram.com/sekolahcikal?igshid=MzRlODBiNWFlZA==" class="fa fa-instagram"></a>
+            <a href="https://twitter.com/sekolahcikal?lang=en" class="fa fa-twitter"></a>
+        </div>
+        <p>Made by Ilham and Zahra</p>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+        import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-GCRTkz5_f-Z3JwUUYXPmKBjeiHcvfCc",
+            authDomain: "preadmin2.firebaseapp.com",
+            databaseURL: "https://preadmin2-default-rtdb.firebaseio.com",
+            projectId: "preadmin2",
+            storageBucket: "preadmin2.appspot.com",
+            messagingSenderId: "931524081528",
+            appId: "1:931524081528:web:19194a96a914d115123a8d",
+            measurementId: "G-FG4MC4K2GX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase();
+
+        // Ensure that the redirectToUpdate function is globally accessible
+        window.redirectToUpdate = function (name) {
+            console.log('Redirecting to update page for name:', name);
+            window.location.href = `updateRegistration.html?name=${name}`;
+        };
+
+        window.deleteData = function (name) {
+            if (confirm(`Are you sure you want to delete the registration for ${name}?`)) {
+                console.log('Attempting to delete place with name:', name);
+                remove(ref(db, 'RegistrationSet/' + name))
+                    .then(() => {
+                        alert("Data Deleted Successfully");
+                        console.log("Delete successful");
+                        loadData(); // Refresh the data after deletion
+                    }).catch((error) => {
+                        alert("Unsuccessful");
+                        console.error("Delete failed:", error);
+                    });
+            }
+        };
+
+        function loadData() {
+            const registrationRef = ref(db, 'RegistrationSet/');
+            onValue(registrationRef, (snapshot) => {
+                const data = snapshot.val();
+                const tbody = document.querySelector('.fl-table tbody');
+                tbody.innerHTML = ''; // Clear existing rows
+
+                for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        const registration = data[key];
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+                        <td>${registration.name || key}</td> <!-- Use key as a fallback if name is missing -->
+                        <td>${registration.gender}</td>
+                        <td>${registration.birthdate}</td>
+                        <td>${registration.address}</td>
+                        <td>${registration.homePhone}</td>
+                        <td>${registration.parentName}</td>
+                        <td>${registration.parentPhone}</td>
+                        <td> <button class="action-btn edit" onclick="redirectToUpdate('${key}')">Update</button></td>
+                        <td> <button class="action-btn delete" onclick="deleteData('${key}')">Delete</button> </td>
+                    `;
+
+                        tbody.appendChild(row);
+                    }
+                }
+            });
+        }
+
+        window.onload = loadData;
+
+    </script>
+
+</body>
+
+</html>

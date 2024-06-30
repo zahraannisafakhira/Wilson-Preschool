@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wilson Preschool</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;600;700&family=Roboto:ital,wght@0,400;1,300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+    <!--Facilities-->
+    <section class="Facilities">
+        <div class="Comment-box" style="background: white;">
+            <h1>Update Registration</h1>
+            <p>To update registration</p>
+            <h3>Registrasi</h3>
+            <form id="updateForm" class="Contact-form">
+                <input id="name" type="text" name="name" placeholder="Enter Name" required>
+                <input id="gender" type="text" name="gender" placeholder="Enter Gender (M/F)" required>
+                <input id="birthdate" type="date" name="birthdate" required>
+                <input id="address" type="text" name="address" placeholder="Enter Address" required>
+                <input id="homePhone" type="tel" name="homePhone" placeholder="Enter Home Phone Number" required>
+                <input id="parentName" type="text" name="parentName" placeholder="Enter Parent Name" required>
+                <input id="parentPhone" type="tel" name="parentPhone" placeholder="Enter Parent Phone Number" required>
+                <button type="submit" class="hero-btn red-btn">POST</button>
+            </form>
+        </div>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-GCRTkz5_f-Z3JwUUYXPmKBjeiHcvfCc",
+            authDomain: "preadmin2.firebaseapp.com",
+            databaseURL: "https://preadmin2-default-rtdb.firebaseio.com",
+            projectId: "preadmin2",
+            storageBucket: "preadmin2.appspot.com",
+            messagingSenderId: "931524081528",
+            appId: "1:931524081528:web:19194a96a914d115123a8d",
+            measurementId: "G-FG4MC4K2GX"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase();
+
+        // Get name from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('name');
+
+        const form = document.getElementById('updateForm');
+        const nameInput = document.getElementById('name');
+        const genderInput = document.getElementById('gender');
+        const birthdateInput = document.getElementById('birthdate');
+        const addressInput = document.getElementById('address');
+        const homePhoneInput = document.getElementById('homePhone');
+        const parentNameInput = document.getElementById('parentName');
+        const parentPhoneInput = document.getElementById('parentPhone');
+
+        // Load registration data
+        function loadRegistrationData() {
+            console.log('Loading registration data for name:', name);
+            const registrationRef = ref(db, 'RegistrationSet/' + name);
+            get(registrationRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const registrationData = snapshot.val();
+                    console.log('Registration data:', registrationData);
+                    nameInput.value = name;  // Set the name input field
+                    genderInput.value = registrationData.gender || '';
+                    birthdateInput.value = registrationData.birthdate || '';
+                    addressInput.value = registrationData.address || '';
+                    homePhoneInput.value = registrationData.homePhone || '';
+                    parentNameInput.value = registrationData.parentName || '';
+                    parentPhoneInput.value = registrationData.parentPhone || '';
+                } else {
+                    console.error("No data available for name:", name);
+                }
+            }).catch((error) => {
+                console.error("Error fetching registration data:", error);
+            });
+        }
+
+        // Update registration data
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const updatedRegistrationData = {
+                name: nameInput.value,
+                gender: genderInput.value,
+                birthdate: birthdateInput.value,
+                address: addressInput.value,
+                homePhone: homePhoneInput.value,
+                parentName: parentNameInput.value,
+                parentPhone: parentPhoneInput.value
+            };
+
+            const registrationRef = ref(db, 'RegistrationSet/' + name);
+            update(registrationRef, updatedRegistrationData)
+                .then(() => {
+                    alert('Registration updated successfully');
+                    window.location.href = `applicants.html?name=${name}`;
+                })
+                .catch((error) => {
+                    console.error("Error updating registration data:", error);
+                    alert("Error updating registration data. Please try again later.");
+                });
+        });
+
+        window.onload = loadRegistrationData;
+
+    </script>
+
+    <!-- <section class="Footer">
+        <h4>About Us</h4>
+        <p>At Wilson Preschool, we believe in the power of early education to shape young minds and inspire a lifelong
+            love for learning.
+            <br>For any inquiries or to schedule a visit, please don't hesitate to reach out to us.
+        </p>
+        <div class="icons">
+            <a href="https://www.facebook.com/SekolahCikal/?locale=id_ID" class="fa fa-facebook"></a>
+            <a href="https://instagram.com/sekolahcikal?igshid=MzRlODBiNWFlZA==" class="fa fa-instagram"></a>
+            <a href="https://twitter.com/sekolahcikal?lang=en" class="fa fa-twitter"></a>
+        </div>
+        <p>Made by Ilham and Zahra</p>
+    </section> -->
+
+</body>
+
+</html>
